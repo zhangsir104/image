@@ -1,13 +1,11 @@
-from hashlib import md5
 from urllib.parse import urlencode
 
 from util.configure import get_spider_conf
+from util.util import image_to_md5
 
 import requests
 
-with open('../conf/spider.conf', 'r') as f:
-    data = f.read()
-    print(data)
+
 baidu_web_url = get_spider_conf('../conf/spider.conf', 'baidu', 'baidu_web_url')
 my_headers = get_spider_conf('../conf/spider.conf', 'baidu', 'my_headers')
 word = get_spider_conf('../conf/spider.conf', 'baidu', 'word')
@@ -56,8 +54,8 @@ class ImageBaiduSpider(object):
                    "expermode": "",
                    "force": "",
                    "cg": "star",
-                   "pn": "30",
-                   "rn": offset * 30,
+                   "pn": offset * 30,
+                   "rn": "30",
                    "gsm": "1e",
                    "1609071177455": ""
                        }
@@ -66,14 +64,12 @@ class ImageBaiduSpider(object):
         return web_url
 
     def save_data(self, img_url):
-        img_data = requests.get(img_url, headers=eval(self.headers)).content
-        m = md5()
-        m.update(img_data)
-        img_md5 = m.hexdigest()
+        img_page = requests.get(img_url, headers=eval(self.headers)).content
+        img_md5 = image_to_md5(img_page)
         print(img_md5)
         with open('image_file/{}.jpg'.format(img_md5), 'wb') as f:
-            f.write(img_data)
-        print(img_data)
+            f.write(img_page)
+        # print(img_page)
 
     def get_image(self, web_url):
         try:
@@ -83,8 +79,9 @@ class ImageBaiduSpider(object):
             if data_list:
                 for data in data_list:
                     img_url = data.get('thumbURL')
-                    self.save_data(img_url)
-                    print(img_url)
+                    if img_url:
+                        self.save_data(img_url)
+                        print(img_url)
 
         except ConnectionError as e:
             print('erro', e)
