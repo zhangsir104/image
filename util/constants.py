@@ -1,0 +1,1 @@
+SPIDERCONF = 'image_spider/conf/spider.conf'
