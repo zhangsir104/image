@@ -8,7 +8,7 @@ from image_db.img2mongodb.image2mgodb import image_to_mongodb
 imagegspider = ImageBaiduSpider()
 
 
-class Image2Db(object):
+class ImageToDb(object):
     def __init__(self):
         self.queue = Queue()
 
@@ -26,9 +26,11 @@ class Image2Db(object):
     def consumer(self):
         while True:
             if self.queue.empty():
-                time.sleep(5)
                 print('队列为空')
-                continue
+                time.sleep(10)
+                if self.queue.empty():
+                    break
+
             img = self.queue.get()
             print("{}成功从队列取出".format(img.md5))
             if img:
@@ -46,9 +48,10 @@ if __name__ == '__main__':
 
     # 添加环境路径，后续写入配置文件
     env_path = os.environ['PATH']
-    mydir = '/home/python/Desktop/image/image'
+    mydir = os.getcwd()
     os.environ['PATH'] = mydir + ';' + env_path
-    Image2Db().run()
+
+    ImageToDb().run()
 
 
 
